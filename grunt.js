@@ -12,14 +12,15 @@ module.exports = function(grunt) {
 
     css: {
       options: {
-        src: "css/jy",
-        dst: "css",
-        base_uri: "://static.mail.com/"
+        css_src: "css/jy",
+        css_dst: "<%= build_dir %>/css",
+        base_uri: "://static.mail.com/",
+        img_src: "img",
+        img_dst: "<%= build_dir %>/img",
+        img_prefix: "."
       },
 
-      files: {
-        "*": "*"
-      }
+      files: "*"
     }
   });
 
