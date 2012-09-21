@@ -1,4 +1,5 @@
 var Path = require('path');
+var crypto = require('crypto');
 
 module.exports = function(grunt) {
   "use strict";
@@ -17,40 +18,79 @@ module.exports = function(grunt) {
       files = expandFiles(files);
     }
 
+    grunt.file.mkdir(options.css_dir);
+    grunt.file.mkdir(options.img_dir);
+
     files.forEach(function(file) {
       grunt.helper('css_version', file, options);
     }); 
 
-  }); 
+  });
 
   var cssBgReg = /background.*\((['"]?)([^'"\)]+)\1/g;
+  var cssBgReplaceReg = /(background.*)\((['"]?)([^'"\)]+)\\2)'/;
   var remoteReg = /https?:/;
+  var cache = {};
 
-  function isAbsolute(path) {
-    return typeof path == "string" && ;
+  function md5(filecontent) {
+    crypto.createHash('md5').update(filecontent).digest("hex");
   }
 
-  function imgMd5(path, refPath) {
-    var fullpath;
+  function genereateMd5Filename(path) {
+    if (cache[path]) {
+      return cache[path];
+    }
 
-    if (path[0] == '.') {
-      fullpath = Path.resolve(refPath, path);
-    } else if (path[0] == "/") {
+    var dstFilename;
+    var filecontent = grunt.file.read(path);
+    var extname = Path.extname(path);
+    var basename = Path.basename(path, extname);
 
-    } 
+    dstFilename = basename + '_' + md5(filecontent) + extname;
+    cache[path] = dstFilename;
 
-    fullpath = ;
+    return dstFilename;
   }
 
-  grunt.registerHelper('css_version', function(file, options, callback) {
-    var source = grunt.file.read(file);
-    var result, path;
+  grunt.registerHelper('css_version', function(filepath, options, callback) {
+    var source = grunt.file.read(filepath);
+    var imgPath, imgFullpath;
+    var resourceMap = {};
 
-    while(result = cssBgReg.exec(source)) {
-      path = result[2]; 
-      if (remoteReg.test(path)) continue;
-      var imgMd5 = imgMd5(path);
-      
-    } 
+    cssBgReg.lastIndex = 0;
+
+    while (var result = cssBgReg.exec(source)) {
+      imgPath = result[2];
+      if (remoteReg.test(imgPath)) continue;
+
+      cssBgReplaceReg.lastIndex = cssBgReg.lastIndex;
+
+      if (imgPath[0] == '.') {
+        imgFullpath = Path.resolve(filepath, imgPath);
+      } else if (grunt.file.isPathAbsolute(imgPath)) {
+        imgFullpath = Path.resolve(imgFullpath); = imgPath;
+      }
+
+      imgFullpath = Path.resolve(imgFullpath);
+
+      var imgDirFullpath = Path.resolve(options.img_dir);
+      var relativePath = imgPath.relative(imgDirFullpath, imgFullpath);
+      var imgDstFilename = genereateMd5Filename(imgFullpath);
+      var imgDstPath = Path.join(relativePath, imgDstFilename);
+      grunt.file.copy(imgPath, Path.join(options.img_dst, imgDstPath));
+      imgDstPath = (options.base_uri || '') + '/' + imgDstPath;
+
+      source.replace(cssBgReplaceReg, function(full, bgPrefix, url) {
+        return bgPrefix + '(' + imgDstPath + ')';
+      });
+
+      cssBgReg.lastIndex += imgDstFilename.length - imgPath.length;
+    }
+
+    var cssDstPath = genereateMd5Filename(filepath);
+    cssDstPath = Path.join(options.img_dir, cssDstPath);
+    grunt.file.copy(filepath, cssDstPath);
+
+    resourceMap[filepath] = cssDstPath;
   });
 }

@@ -2,25 +2,32 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
+    pkg: {
+      name: "jy",
+      dist: "dist"
+    },
+
     test: {
       files: ["test/**/*.js"]
     },
 
     clean: {
-      dist: ['dist']
+      dist: ["<config:pkg.dist>"]
     },
 
     css: {
-      options: {
-        css_src: "css/jy",
-        css_dst: "<%= build_dir %>/css",
-        base_uri: "://static.mail.com/",
-        img_src: "img",
-        img_dst: "<%= build_dir %>/img",
-        img_prefix: "."
-      },
+      app: {
+        options: {
+          base_uri: "://static.mail.com/<config:pkg.dist>",
+          resourcemap_dir: "<config:pkg.dist>",
+          css_src: "css/jy",
+          css_dst: "<config:pkg.dist>/css",
+          img_src: "img",
+          img_dst: "<config:pkg.dist>/img"
+        },
 
-      files: "*"
+        files: "*"
+      }
     }
   });
 
