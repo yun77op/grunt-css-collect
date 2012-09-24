@@ -1,0 +1,12 @@
+{
+  "name": "grunt-spm-example",
+  "description": "Grunt spm example module",
+  "version": "0.0.1",
+  "author": {
+    "name": "Yunhu Jiang (@yun77op)",
+    "email": "yun77op@gmail.com"
+  },
+  "output": {
+    "helper.js": "."
+  }
+}

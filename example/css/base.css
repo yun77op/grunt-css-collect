@@ -1,0 +1,8 @@
+body {
+  background: url("../img/header.jpg") 0 0 no-repeat;
+  font-size: 13px;
+}
+
+h1 {
+  background: url("/img/logo.png");
+}

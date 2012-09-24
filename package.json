@@ -1,0 +1,23 @@
+{
+  "name": "grunt-ne",
+  "description": "Grunt plugins including css & img version and smush.it",
+  "version": "0.0.1",
+  "author": {
+    "name": "Yunhu Jiang (@yun77op)",
+    "email": "yun77op@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yun77op/grunt-ne.git"
+  },
+  "dependencies": {
+    "grunt": "0.3.15",
+    "clean-css": "~0.4.1"
+  },
+  "keywords": ["gruntplugin"],
+  "engines": {
+    "node": ">= 0.6.0"
+  },
+  "main": "grunt.js",
+  "bin": "bin/ne"
+}
