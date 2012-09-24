@@ -43,7 +43,8 @@ module.exports = function(grunt) {
   });
 
   //grunt.loadNpmTasks('grunt-htmlcompressor');
+  //grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadTasks('../tasks');
 
-  grunt.registerTask('default', 'clean css_version spm');
+  grunt.registerTask('default', 'css_version spm');
 };

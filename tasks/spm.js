@@ -7,6 +7,8 @@ var exec = require('child_process').exec;
 module.exports = function(grunt) {
   "use strict";
 
+  grunt.util = grunt.util || grunt.utils;
+
   grunt.registerTask("spm", "Build spm modules and generate resource map", function() {
     var map = {};
     var config = grunt.config('spm');

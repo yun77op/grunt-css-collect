@@ -6,6 +6,8 @@ var cleanCSS = require('clean-css');
 module.exports = function(grunt) {
   "use strict";
 
+  grunt.util = grunt.util || grunt.utils;
+
   grunt.registerMultiTask("css_version", "Version css and img files using Md5", function() {
     var config = this.data;
     var options = config.options;
@@ -16,7 +18,7 @@ module.exports = function(grunt) {
       var map = grunt.helper('css_version', file, options);
       grunt.util._.extend(resourceMap, map);
     }); 
-return;
+
     var tplFiles = getFiles(config.tpl_files, options.tpl_src, options.tpl_ext);
     tplFiles.forEach(function(file) {
       grunt.helper('html_substitute', file, resourceMap, options);
@@ -75,7 +77,7 @@ return;
     var fullpath = Path.resolve(path);
     var srcFullpath = Path.resolve(src);
     var dstRelativePath = Path.relative(srcFullpath, fullpath);
-    var dstRelativePathList = dstRelativePath.split('/');
+    var dstRelativePathList = dstRelativePath.split(/[\/\\]/);
 
     dstRelativePathList.pop();
     dstRelativePathList.push(dstFilename);
@@ -121,7 +123,8 @@ return;
 
       var imgDstFilename = genereateMd5Filename(imgFullpath);
       var imgDstPath = getDstPath(options.img_src, imgFullpath, imgDstFilename);
-      var paths = getCopyAndRefPath(imgDstPath, options.base_uri); 
+      var paths = getCopyAndRefPath(imgDstPath, options.base_uri);
+
       grunt.file.copy(imgFullpath, paths.copy);
       
       replaceList.push(paths.ref);
@@ -158,7 +161,7 @@ return;
 
     grunt.file.write(filepath, lines.join(os.EOL));
   });
-  
+
   grunt.registerHelper('css_version', function(filepath, options) {
     filepath = Path.normalize(filepath);
 

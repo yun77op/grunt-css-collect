@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "grunt": "0.3.15",
-    "clean-css": "~0.4.1"
+    "clean-css": "~0.4.1",
+    "grunt-contrib-clean": "0.3.0"
   },
   "keywords": ["gruntplugin"],
   "engines": {
