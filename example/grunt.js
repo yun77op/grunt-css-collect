@@ -28,24 +28,23 @@ module.exports = function(grunt) {
       }
     },
 
+    spm_build: {
+      root: "./js",
+      resource_map_file: "<%= pkg.dist %>/js-resource-map.json",
+      options: {
+        src: ".",
+        dist: "../<%= pkg.dist %>/js"
+      }
+    },
+
     html_substitute: {
       main: {
         options: {
           resource_map: ["<config:css_version.main.options.resource_map_file>"],
-          css_src: "./css",
           src: "./html",
           ext: "html"
         },
         files: "*"
-      }
-    },
-
-    spm: {
-      root: "./js",
-      resource_map_file: "<%= pkg.dist %>/css-resource-map.json"
-      options: {
-        src: ".",
-        dist: "../<%= pkg.dist %>/js"
       }
     }
 
@@ -55,5 +54,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadTasks('../tasks');
 
-  grunt.registerTask('default', 'clean css_version html_substitute');
+  grunt.registerTask('default', 'clean css_version spm html_substitute');
 };

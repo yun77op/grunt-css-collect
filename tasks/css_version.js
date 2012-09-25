@@ -8,27 +8,15 @@ module.exports = function(grunt) {
 
   grunt.util = grunt.util || grunt.utils;
 
-  grunt.registerMultiTask("css_version", "Version css and img files using Md5", function() {
-    var config = this.data;
-    var options = config.options;
-    var files = getFiles(config.files, options.css_src, 'css');
-    var resourceMap = {};
-
-    files.forEach(function(file) {
-      var map = grunt.helper('css_version', file, options);
-      grunt.util._.extend(resourceMap, map);
-    }); 
-
-    var resourceMapFile = grunt.template.process(options.resource_map_file);
-    fs.writeFileSync(resourceMapFile, JSON.stringify(resourceMap));
-  
-    grunt.log.ok('File ' + resourceMapFile + ' created.');
-  });
-
-  var cssBgPattern = /background.*?\(\s*(['"]?)([^'"\)]+)\1/g;
-  var cssBgReplacePattern = /(background.*?\(\s*)(['"]?)([^'"\)]+)\2/g;
-  var httpPattern = /https?:/;
+  var cssBgPattern = /background.*?url\s*\(\s*(['"]?)([^'"\)]+)\1/g;
+  var cssBgReplacePattern = /(background.*?url\(\s*)(['"]?)([^'"\)]+)\2/g;
+  var httpPattern = /https?:\/\//;;
   var cache = {};
+
+
+  // ==========================================================================
+  // PRIVATE HELPER FUNCTIONS
+  // ==========================================================================
 
   function getFiles(files, src, type) {
     var expandFiles = grunt.file.expandFiles;
@@ -69,6 +57,12 @@ module.exports = function(grunt) {
     return dstFilename;
   }
 
+  function normalizeUri(uri) {
+    return uri.replace(/\\/g, '/').replace(/(https?:)\//, function(full, prefix) {
+      return prefix + '//';
+    });
+  }
+
   function getDstPath(src, path, dstFilename) {
     var fullpath = Path.resolve(path);
     var srcFullpath = Path.resolve(src);
@@ -85,15 +79,11 @@ module.exports = function(grunt) {
     var dist = grunt.config('pkg.dist');
     base_uri = base_uri || grunt.config('pkg.base_uri');
 
-    if (base_uri[base_uri.length - 1] == '/') {
-      base_uri = base_uri.slice(0, -1);
-    }
-
     var refDstBase = base_uri ? base_uri : '/' + dist;
 
     return {
       copy: Path.join(dist, path),
-      ref: refDstBase + '/' + path
+      ref: normalizeUri(Path.join(refDstBase, path))
     };
   }
 
@@ -129,6 +119,26 @@ module.exports = function(grunt) {
     return replaceList;
   }
 
+  // ==========================================================================
+  // TASKS
+  // ==========================================================================
+
+  grunt.registerMultiTask("css_version", "Version css and img files using Md5", function() {
+    var config = this.data;
+    var options = config.options;
+    var files = getFiles(config.files, options.css_src, 'css');
+    var resourceMap = {};
+
+    files.forEach(function(file) {
+      var map = grunt.helper('css_version', file, options);
+      grunt.util._.extend(resourceMap, map);
+    }); 
+
+    var resourceMapFile = grunt.template.process(options.resource_map_file);
+    fs.writeFileSync(resourceMapFile, JSON.stringify(resourceMap));
+  
+    grunt.log.ok('File ' + resourceMapFile + ' created.');
+  });
 
   grunt.registerHelper('css_version', function(filepath, options) {
     filepath = Path.normalize(filepath);
@@ -148,8 +158,8 @@ module.exports = function(grunt) {
     var min = cleanCSS.process(source);
 
     grunt.file.write(paths.copy, min);
-    
-    resourceMap['/' + filepath] = paths.ref;
+
+    resourceMap['/' + normalizeUri(filepath)] = paths.ref;
 
     return resourceMap;
   });
