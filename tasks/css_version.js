@@ -1,7 +1,7 @@
 var Path = require('path');
 var crypto = require('crypto');
-var os = require('os');
 var cleanCSS = require('clean-css');
+var fs = require('fs');
 
 module.exports = function(grunt) {
   "use strict";
@@ -11,27 +11,23 @@ module.exports = function(grunt) {
   grunt.registerMultiTask("css_version", "Version css and img files using Md5", function() {
     var config = this.data;
     var options = config.options;
-    var cssFiles = getFiles(config.css_files, options.css_src, 'css');
+    var files = getFiles(config.files, options.css_src, 'css');
     var resourceMap = {};
 
-    cssFiles.forEach(function(file) {
+    files.forEach(function(file) {
       var map = grunt.helper('css_version', file, options);
       grunt.util._.extend(resourceMap, map);
     }); 
 
-    var tplFiles = getFiles(config.tpl_files, options.tpl_src, options.tpl_ext);
-    tplFiles.forEach(function(file) {
-      grunt.helper('html_substitute', file, resourceMap, options);
-    });
-
-    grunt.log.writeln('ok');
+    var resourceMapFile = grunt.template.process(options.resource_map_file);
+    fs.writeFileSync(resourceMapFile, JSON.stringify(resourceMap));
+  
+    grunt.log.ok('File ' + resourceMapFile + ' created.');
   });
 
   var cssBgPattern = /background.*?\(\s*(['"]?)([^'"\)]+)\1/g;
   var cssBgReplacePattern = /(background.*?\(\s*)(['"]?)([^'"\)]+)\2/g;
   var httpPattern = /https?:/;
-  var relStylesheetPattern = /rel\s*=\s*(['"]?)stylesheet\1/;
-  var stylesheetHrefPattern = /href\s*=\s*(['"]?)([^>\s'"]+)\1/;
   var cache = {};
 
   function getFiles(files, src, type) {
@@ -133,34 +129,6 @@ module.exports = function(grunt) {
     return replaceList;
   }
 
-  function isStylesheetLine(line) {
-    line = line.trim();
-
-    if (line.indexOf('<link') != 0 ||
-        !line.match(relStylesheetPattern)) return false;
-    
-    return true;    
-  }
-
-  grunt.registerHelper('html_substitute', function(filepath, resourceMap, options) {
-    var source = grunt.file.read(filepath);
-    var lines = source.split(os.EOL);
-    lines = lines.map(function(line) {
-      if (!isStylesheetLine(line)) return line;
-    
-      return line.replace(stylesheetHrefPattern, function(full, quotes, path) {
-        var value = resourceMap[path];
-
-        if (!value && !httpPattern.test(path)) {
-          grunt.fail.warn('Failed to substitue ' + path + '.');
-        }
-
-        return !value ? full : full.replace(path, value);
-      });
-    });
-
-    grunt.file.write(filepath, lines.join(os.EOL));
-  });
 
   grunt.registerHelper('css_version', function(filepath, options) {
     filepath = Path.normalize(filepath);
@@ -180,7 +148,7 @@ module.exports = function(grunt) {
     var min = cleanCSS.process(source);
 
     grunt.file.write(paths.copy, min);
-
+    
     resourceMap['/' + filepath] = paths.ref;
 
     return resourceMap;

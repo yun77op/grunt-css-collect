@@ -17,23 +17,32 @@ module.exports = function(grunt) {
     },
 
     css_version: {
-      app: {
+      main: {
         options: {
           css_src: "./css",
           css_dst: "css",
           img_dst: "img",
-          tpl_src: "./html",
-          tpl_ext: "html"
+          resource_map_file: "<%= pkg.dist %>/css-resource-map.json"
         },
+        files: "*"
+      }
+    },
 
-        css_files: "*",
-        tpl_files: "*"
+    html_substitute: {
+      main: {
+        options: {
+          resource_map: ["<config:css_version.main.options.resource_map_file>"],
+          css_src: "./css",
+          src: "./html",
+          ext: "html"
+        },
+        files: "*"
       }
     },
 
     spm: {
       root: "./js",
-      resourcemap_dir: "<%= pkg.dist %>",
+      resource_map_file: "<%= pkg.dist %>/css-resource-map.json"
       options: {
         src: ".",
         dist: "../<%= pkg.dist %>/js"
@@ -43,8 +52,8 @@ module.exports = function(grunt) {
   });
 
   //grunt.loadNpmTasks('grunt-htmlcompressor');
-  //grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadTasks('../tasks');
 
-  grunt.registerTask('default', 'css_version spm');
+  grunt.registerTask('default', 'clean css_version html_substitute');
 };

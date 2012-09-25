@@ -43,15 +43,16 @@ module.exports = function(grunt) {
 
   function generateResourceMap(config) {
     var options = config.options;
-    var dist = options.dist;
+    var dist = Path.join(config.root, options.dist);
     var resourceMap = {};
 
-    function md5File(dist, path, base_uri) {
+    function md5File(filepath, options) {
       var source = fs.readFileSync(filepath);
       var filename = md5(source);
-      base_uri = base_uri || grunt.config('pkg.base_uri');
+      base_uri = options.base_uri || grunt.config('pkg.base_uri');
 
-      return Path.join(pathPrefix); 
+      var prefix = options.path_prefix || '/' + dist;
+
     }
 
     fs.readdirSync(dist).forEach(function(filename, i) {
@@ -67,25 +68,16 @@ module.exports = function(grunt) {
       while(result = idPattern.exec(source)) {
         id = result[2];
         if (id[0] == '#') id = id.slice(1);
-        resourceMap[id] = md5File(path);
+        resourceMap[id] = md5File(filepath, config);
+      }
+
+      if (grunt.util.kindOf(config.resourceMap) === 'object') {
+        for (var i in config.resourceMap) {
+          resourceMap[i] = md5File(config.resourceMap[i], config);
+        }
       }
     
     });
-
-    if (config.resourceMap) {
-      grunt.util._.extend(resourceMap, config.resourceMap);
-    }
-
-
-    for (var i in resourceMap) {
-      var filename = resourceMap[i];
-      var fullpath = path.join(dist, filename);
-      var filecontent = fs.readFileSync(fullpath);
-      var basename = md5(filecontent);
-      excodedFilename = basename + path.extname(filename);
-      excodedMap[i] = 'dist/' + excodedFilename;
-      grunt.file.write(path.join(project.distDirectory, excodedFilename), filecontent);
-    }
 
     var resourceMapFilename = 'resource-map.json';
     fs.writeFileSync(path.join(dist, resourceMapFilename), JSON.stringify(resourceMap));
