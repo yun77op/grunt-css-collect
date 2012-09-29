@@ -18,17 +18,15 @@ module.exports = function(grunt) {
 
     css_version: {
       main: {
-        options: {
-          css_src: "./css",
-          css_dst: "css",
-          img_dst: "img",
-          resource_map_file: "<%= pkg.dist %>/css-resource-map.json"
-        },
+        css_src: "./css",
+        css_dst: "css",
+        img_dst: "img",
+        resource_map_file: "<%= pkg.dist %>/css-resource-map.json",
         files: "*"
       }
     },
 
-    spm_build: {
+    spm: {
       root: "./js",
       resource_map_file: "<%= pkg.dist %>/js-resource-map.json",
       options: {
@@ -39,11 +37,9 @@ module.exports = function(grunt) {
 
     html_substitute: {
       main: {
-        options: {
-          resource_map: ["<config:css_version.main.options.resource_map_file>"],
-          src: "./html",
-          ext: "html"
-        },
+        resource_map: ["<config:css_version.main.resource_map_file>"],
+        src: "./html",
+        ext: "html",
         files: "*"
       }
     }

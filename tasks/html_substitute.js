@@ -49,10 +49,9 @@ module.exports = function(grunt) {
 
   grunt.registerMultiTask("html_substitute", "Substitue assets link in html", function() {
     var config = this.data;
-    var options = config.options;
 
     var resourceMap = {};
-    var resourcePathMap = options.resource_map;
+    var resourcePathMap = config.resource_map;
 
     if (!Array.isArray(resourcePathMap)) {
       resourcePathMap = [resourcePathMap]; 
@@ -64,15 +63,15 @@ module.exports = function(grunt) {
       grunt.util._.extend(resourceMap, map);
     });
 
-    var files = getFiles(config.files, options.src, options.ext);
+    var files = getFiles(config.files, config.src, config.ext);
     files.forEach(function(file) {
-      grunt.helper('html_substitute', file, resourceMap, options);
+      grunt.helper('html_substitute', file, resourceMap);
     });
 
     grunt.log.ok();
   });
 
-  grunt.registerHelper('html_substitute', function(filepath, resourceMap, options) {
+  grunt.registerHelper('html_substitute', function(filepath, resourceMap) {
     var source = grunt.file.read(filepath);
     var lines = source.replace(/\r/g, '').split('\n');
 

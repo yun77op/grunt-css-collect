@@ -87,7 +87,7 @@ module.exports = function(grunt) {
     };
   }
 
-  function parseCssBackground(filepath, options) {
+  function parseCssBackground(filepath, config) {
     var source = grunt.file.read(filepath);
     var result;
     var imgPath, imgFullpath;
@@ -108,8 +108,8 @@ module.exports = function(grunt) {
       }
 
       var imgDstFilename = genereateMd5Filename(imgFullpath);
-      var imgDstPath = getDstPath(options.img_src, imgFullpath, imgDstFilename);
-      var paths = getCopyAndRefPath(imgDstPath, options.base_uri);
+      var imgDstPath = getDstPath(config.img_src, imgFullpath, imgDstFilename);
+      var paths = getCopyAndRefPath(imgDstPath, config.base_uri);
 
       grunt.file.copy(imgFullpath, paths.copy);
       
@@ -125,36 +125,35 @@ module.exports = function(grunt) {
 
   grunt.registerMultiTask("css_version", "Version css and img files using Md5", function() {
     var config = this.data;
-    var options = config.options;
-    var files = getFiles(config.files, options.css_src, 'css');
+    var files = getFiles(config.files, config.css_src, 'css');
     var resourceMap = {};
 
     files.forEach(function(file) {
-      var map = grunt.helper('css_version', file, options);
+      var map = grunt.helper('css_version', file, config);
       grunt.util._.extend(resourceMap, map);
     }); 
 
-    var resourceMapFile = grunt.template.process(options.resource_map_file);
+    var resourceMapFile = grunt.template.process(config.resource_map_file);
     fs.writeFileSync(resourceMapFile, JSON.stringify(resourceMap));
   
     grunt.log.ok('File ' + resourceMapFile + ' created.');
   });
 
-  grunt.registerHelper('css_version', function(filepath, options) {
+  grunt.registerHelper('css_version', function(filepath, config) {
     filepath = Path.normalize(filepath);
 
     var index = 0;
     var resourceMap = {};
     var source = grunt.file.read(filepath);
-    var replaceList = parseCssBackground(filepath, options);
+    var replaceList = parseCssBackground(filepath, config);
 
     source = source.replace(cssBgReplacePattern, function(full, bgPrefix, quotes, url) {
       return bgPrefix + replaceList[index++];
     });
 
     var cssDstFilename = genereateMd5Filename(filepath);
-    var cssDstPath = Path.join(options.css_dst, cssDstFilename);
-    var paths = getCopyAndRefPath(cssDstPath, options.base_uri);
+    var cssDstPath = Path.join(config.css_dst, cssDstFilename);
+    var paths = getCopyAndRefPath(cssDstPath, config.base_uri);
     var min = cleanCSS.process(source);
 
     grunt.file.write(paths.copy, min);
