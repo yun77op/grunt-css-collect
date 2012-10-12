@@ -15,9 +15,13 @@ module.exports = function(grunt) {
 
   grunt.util = grunt.util || grunt.utils;
 
+  // shorthands
+  var File = grunt.file;
+  var _ = grunt.util._;
+
   var cssBgPattern = /background.*?url\s*\(\s*(['"]?)([^'"\)]+)\1/g;
   var cssBgReplacePattern = /(background.*?url\(\s*)(['"]?)([^'"\)]+)\2/g;
-  var httpPattern = /https?:\/\//;;
+  var httpPattern = /https?:\/\//;
   var cache = {};
 
 
@@ -34,15 +38,15 @@ module.exports = function(grunt) {
       return cache[path];
     }
 
-    var dstFilename;
-    var filecontent = grunt.file.read(path);
+    var filename_dst;
+    var filecontent = File.read(path);
     var extname = Path.extname(path);
     var basename = Path.basename(path, extname);
 
-    dstFilename = basename + '_' + md5(filecontent) + extname;
-    cache[path] = dstFilename;
+    filename_dst = basename + '_' + md5(filecontent) + extname;
+    cache[path] = filename_dst;
 
-    return dstFilename;
+    return filename_dst;
   }
 
   function normalizeUri(uri) {
@@ -51,16 +55,18 @@ module.exports = function(grunt) {
     });
   }
 
-  function getDstPath(src, path, dstFilename) {
-    var fullpath = Path.resolve(path);
-    var srcFullpath = Path.resolve(src);
-    var dstRelativePath = Path.relative(srcFullpath, fullpath);
-    var dstRelativePathList = dstRelativePath.split(/[\/\\]/);
+  function getDstPath(path_src, path_dst, filename_dst) {
+    path_dst = Path.resolve(path_dst);
+    path_src = Path.resolve(path_src);
+    var relative_path = Path.relative(path_src, path_dst);
 
-    dstRelativePathList.pop();
-    dstRelativePathList.push(dstFilename);
+    var tmp = relative_path.split(/[\/\\]/);
+    tmp.pop();
+    tmp.push(filename_dst);
 
-    return dstRelativePathList.join('/');
+    var path_dst = tmp.join('/');
+
+    return path_dst;
   }
 
   function getCopyAndRefPath(path, base_uri) {
@@ -76,35 +82,35 @@ module.exports = function(grunt) {
   }
 
   function parseCssBackground(filepath, config) {
-    var source = grunt.file.read(filepath);
-    var result;
-    var imgPath, imgFullpath;
-    var replaceList = [];
+    var source = File.read(filepath);
+    var img_path;
+    var result = [];
 
     cssBgPattern.lastIndex = 0;
 
-    while (result = cssBgPattern.exec(source)) {
-      imgPath = result[2];
+    var pattern_result;
 
-      if (httpPattern.test(imgPath)) continue;
+    while (pattern_result = cssBgPattern.exec(source)) {
+      img_path = pattern_result[2];
 
-      if (imgPath[0] == '.') {
-        imgFullpath = Path.resolve(Path.dirname(filepath), imgPath);
-      } else if (imgPath[0] == '/') {
-        imgPath = imgPath.slice(1);
-        imgFullpath = Path.resolve(imgPath);
+      if (httpPattern.test(img_path)) continue;
+
+      if (img_path[0] == '.') {
+        img_path = Path.resolve(Path.dirname(filepath), img_path);
+      } else if (img_path[0] == '/') {
+        img_path = Path.resolve(img_path.slice(1));
       }
 
-      var imgDstFilename = genereateMd5Filename(imgFullpath);
-      var imgDstPath = getDstPath(config.img_src, imgFullpath, imgDstFilename);
-      var paths = getCopyAndRefPath(imgDstPath, config.base_uri);
+      var img_filename_dst = genereateMd5Filename(img_path);
+      var img_path_dst = getDstPath(config.img_src, img_path, img_filename_dst);
+      var paths = getCopyAndRefPath(img_path_dst, config.base_uri);
 
-      grunt.file.copy(imgFullpath, paths.copy);
-      
-      replaceList.push(paths.ref);
+      File.copy(img_path, paths.copy);
+
+      result.push(paths.ref);
     }
 
-    return replaceList;
+    return result;
   }
 
   // ==========================================================================
@@ -127,7 +133,7 @@ module.exports = function(grunt) {
 
     files.forEach(function(file) {
       var map = grunt.helper('css_version', file, config);
-      grunt.util._.extend(resourceMap, map);
+      _.extend(resourceMap, map);
     }); 
 
     var resourceMapFile = grunt.template.process(config.resource_map_file);
@@ -141,19 +147,19 @@ module.exports = function(grunt) {
 
     var idx = 0;
     var resourceMap = {};
-    var source = grunt.file.read(filepath);
+    var source = File.read(filepath);
     var replaceList = parseCssBackground(filepath, config);
 
-    source = source.replace(cssBgReplacePattern, function(full, prelude, quotes, url) {
+    source = source.replace(cssBgReplacePattern, function(full, prelude) {
       return prelude + replaceList[idx++];
     });
 
-    var cssDstFilename = genereateMd5Filename(filepath);
-    var cssDstPath = Path.join(config.css_dst, cssDstFilename);
-    var paths = getCopyAndRefPath(cssDstPath, config.base_uri);
+    var filename_dst = genereateMd5Filename(filepath);
+    var path_dst = Path.join(config.css_dst, filename_dst);
+    var paths = getCopyAndRefPath(path_dst, config.base_uri);
     var min = cleanCSS.process(source);
 
-    grunt.file.write(paths.copy, min);
+    File.write(paths.copy, min);
 
     resourceMap['/' + normalizeUri(filepath)] = paths.ref;
 
