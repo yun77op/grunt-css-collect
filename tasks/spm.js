@@ -32,21 +32,22 @@ module.exports = function(grunt) {
   }
 
   function md5File(filepath, config) {
+    var tmp;
+
     var source = grunt.file.read(filepath);
     var extname = Path.extname(filepath);
     var filename = Path.basename(filepath, extname) + '_' + md5(source) + extname; 
 
-    var dstFilepathList = filepath.split(/[\/\\]/);
-    dstFilepathList.pop();
-    dstFilepathList.push(filename);
-    var dstFilepath = dstFilepathList.join('/');
+    tmp = filepath.split(/[\/\\]/);
+    tmp.pop();
+    tmp.push(filename);
+    var dstFilepath = tmp.join('/');
 
-    // Prefix
+    // prefix
     var base_uri = config.base_uri || grunt.config('pkg.base_uri');
     var prefix = base_uri || '/' + dist;
 
     var dstRelativeFilepath = dstFilepath.substr(grunt.config('pkg.dist').length);
-
     var result = normalizeUri(Path.join(prefix + dstRelativeFilepath));
 
     grunt.file.copy(filepath, dstFilepath);
@@ -82,10 +83,10 @@ module.exports = function(grunt) {
 
     });
 
-    var resourceMapFilename = 'js-resource-map.json';
+    var defaultResourceMapFilename = 'js-resource-map.json';
     var resourceMapPath = config.resource_map_file &&
         grunt.template.process(config.resource_map_file) ||
-        Path.join(dist, resourceMapFilename);
+        Path.join(dist, defaultResourceMapFilename);
 
     grunt.file.write(resourceMapPath, JSON.stringify(resourceMap));
 
@@ -114,8 +115,9 @@ module.exports = function(grunt) {
     for (var i in options) {
       if (pathOptions[i]) {
         options[i] = grunt.template.process(options[i]);
-        spmBuildParams += ' --' + i + '=' + options[i];
       }
+
+      spmBuildParams += ' --' + i + '=' + options[i];
     }
 
     config.dist = Path.join(config.root, options.dist);
@@ -123,7 +125,7 @@ module.exports = function(grunt) {
     exec('spm build' + spmBuildParams,  {
       cwd: Path.resolve(config.root)
     }, function(err, stdout, stderr) {
-      log.writeln('')
+      log.writeln('');
       log.writeln(stdout);
       if (stderr) log.error(stderr);
       if (err) grunt.fail.fatal(err);

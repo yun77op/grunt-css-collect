@@ -13,12 +13,11 @@
   "dependencies": {
     "grunt": "0.3.15",
     "clean-css": "~0.4.1",
-    "grunt-contrib-clean": "0.3.0"
+    "cheerio": "0.10.1"
   },
   "keywords": ["gruntplugin"],
   "engines": {
     "node": ">= 0.6.0"
   },
-  "main": "grunt.js",
-  "bin": "bin/ne"
+  "main": "grunt.js"
 }

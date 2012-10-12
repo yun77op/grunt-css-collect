@@ -22,7 +22,7 @@ module.exports = function(grunt) {
         css_dst: "css",
         img_dst: "img",
         resource_map_file: "<%= pkg.dist %>/css-resource-map.json",
-        files: "*"
+        files: "*.css"
       }
     },
 
@@ -39,8 +39,7 @@ module.exports = function(grunt) {
       main: {
         resource_map: ["<config:css_version.main.resource_map_file>"],
         src: "./html",
-        ext: "html",
-        files: "*"
+        files: "*.html"
       }
     }
 

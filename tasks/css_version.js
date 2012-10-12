@@ -1,3 +1,10 @@
+/*
+ * grunt-css-version
+ *
+ * Copyright (c) 2012 yun77op
+ * Licensed under the MIT license.
+ */
+
 var Path = require('path');
 var crypto = require('crypto');
 var cleanCSS = require('clean-css');
@@ -14,28 +21,9 @@ module.exports = function(grunt) {
   var cache = {};
 
 
-  // ==========================================================================
+  // =========================================  =================================
   // PRIVATE HELPER FUNCTIONS
   // ==========================================================================
-
-  function getFiles(files, src, type) {
-    var expandFiles = grunt.file.expandFiles;
-    var result;
-
-    if (Array.isArray(files)) {
-      result = files.map(function(file) {
-        return expandFiles(file); 
-      });
-    } else {
-      result = files == "*" ? ["**/*." + type] : files;
-      result = result.map(function(file) {
-        return Path.join(src, file);
-      });
-      result = expandFiles(result);
-    }
-
-    return result;
-  }
 
   function md5(filecontent) {
     return crypto.createHash('md5').update(filecontent).digest("hex");
@@ -58,8 +46,8 @@ module.exports = function(grunt) {
   }
 
   function normalizeUri(uri) {
-    return uri.replace(/\\/g, '/').replace(/(https?:)\//, function(full, prefix) {
-      return prefix + '//';
+    return uri.replace(/\\/g, '/').replace(/(https?:)\//, function(full, prelude) {
+      return prelude + '//';
     });
   }
 
@@ -124,9 +112,18 @@ module.exports = function(grunt) {
   // ==========================================================================
 
   grunt.registerMultiTask("css_version", "Version css and img files using Md5", function() {
-    var config = this.data;
-    var files = getFiles(config.files, config.css_src, 'css');
+    var config = _.defaults({}, this.data);
     var resourceMap = {};
+    var files = config.files;
+
+    if (!Array.isArray(files)) {
+      files = [files];
+    }
+
+    files = files.chain().map(function(file) {
+      file = Path.join(config.src, file);
+      return File.expandFiles(file);
+    }).flatten().value();
 
     files.forEach(function(file) {
       var map = grunt.helper('css_version', file, config);
@@ -142,13 +139,13 @@ module.exports = function(grunt) {
   grunt.registerHelper('css_version', function(filepath, config) {
     filepath = Path.normalize(filepath);
 
-    var index = 0;
+    var idx = 0;
     var resourceMap = {};
     var source = grunt.file.read(filepath);
     var replaceList = parseCssBackground(filepath, config);
 
-    source = source.replace(cssBgReplacePattern, function(full, bgPrefix, quotes, url) {
-      return bgPrefix + replaceList[index++];
+    source = source.replace(cssBgReplacePattern, function(full, prelude, quotes, url) {
+      return prelude + replaceList[idx++];
     });
 
     var cssDstFilename = genereateMd5Filename(filepath);
