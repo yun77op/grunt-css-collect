@@ -26,13 +26,11 @@
 
       css_version: {
         main: {
-          options: {
-            css_src: "./css",
-            css_dst: "css",
-            img_dst: "img",
-            resource_map_file: "<%= pkg.dist %>/css-resource-map.json"
-          },
-          files: "*"
+          css_src: "./css",
+          css_dst: "css",
+          img_dst: "img",
+          resource_map_file: "<%= pkg.dist %>/css-resource-map.json"
+          files: "**/*.css"
         }
       },
 
@@ -47,12 +45,9 @@
 
       html_substitute: {
         main: {
-          options: {
-            resource_map: ["<config:css_version.main.options.resource_map_file>"],
-            src: "./html",
-            ext: "html"
-          },
-          files: "*"
+          resource_map: ["<config:css_version.main.options.resource_map_file>"],
+          src: "./html",
+          files: "*.html"
         }
       },
       ...
