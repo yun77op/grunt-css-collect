@@ -43,7 +43,7 @@ module.exports = function(grunt) {
       files = [files];
     }
 
-    files = files.chain().map(function(file) {
+    files = _(files).chain().map(function(file) {
       file = Path.join(config.src, file);
       return File.expandFiles(file);
     }).flatten().value();
@@ -56,18 +56,19 @@ module.exports = function(grunt) {
   });
 
   grunt.registerHelper('html_substitute', function(filepath, resourceMap) {
-    var source = File.read(filepath);
+    var source = String(File.read(filepath, 'utf-8'));
     var $ = cheerio.load(source);
 
-    $('link[rel="stylesheet"]').each(function(idx, elm) {
-      var href_src = elm.href;
+    $('link[rel=stylesheet]').each(function(idx, elm) {
+      var $elm = $(elm);
+      var href_src = $elm.attr('href');
       var href_dst = resourceMap[href_src];
 
       if (!href_dst) {
         grunt.fail.warn('Failed to substitue ' + href_src + '.');
       }
 
-      elm.href = href_dst;
+      $elm.attr('href', href_dst);
     });
 
     File.write(filepath, $.html());

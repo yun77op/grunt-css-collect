@@ -8,7 +8,6 @@
 var Path = require('path');
 var crypto = require('crypto');
 var cleanCSS = require('clean-css');
-var fs = require('fs');
 
 module.exports = function(grunt) {
   "use strict";
@@ -64,7 +63,7 @@ module.exports = function(grunt) {
     tmp.pop();
     tmp.push(filename_dst);
 
-    var path_dst = tmp.join('/');
+    path_dst = tmp.join('/');
 
     return path_dst;
   }
@@ -126,8 +125,8 @@ module.exports = function(grunt) {
       files = [files];
     }
 
-    files = files.chain().map(function(file) {
-      file = Path.join(config.src, file);
+    files = _(files).chain().map(function(file) {
+      file = Path.join(config.css_src, file);
       return File.expandFiles(file);
     }).flatten().value();
 
@@ -137,7 +136,7 @@ module.exports = function(grunt) {
     }); 
 
     var resourceMapFile = grunt.template.process(config.resource_map_file);
-    fs.writeFileSync(resourceMapFile, JSON.stringify(resourceMap));
+    File.write(resourceMapFile, JSON.stringify(resourceMap));
   
     grunt.log.ok('File ' + resourceMapFile + ' created.');
   });
@@ -165,4 +164,4 @@ module.exports = function(grunt) {
 
     return resourceMap;
   });
-}
+};
