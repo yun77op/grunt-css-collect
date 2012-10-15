@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     pkg: {
       name: "jy",
       dist: "dist",
-      base_uri: "http://static.mail.com/jy"
+      base_uri: "http://static.mail.com/jy/dist"
     },
 
     test: {
@@ -29,6 +29,9 @@ module.exports = function(grunt) {
     spm: {
       root: "./js",
       resource_map_file: "<%= pkg.dist %>/js-resource-map.json",
+      resource_map: {
+        "bootstrap-dropdown": "ui.js"
+      },
       options: {
         src: ".",
         dist: "../<%= pkg.dist %>/js"

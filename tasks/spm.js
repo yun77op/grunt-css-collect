@@ -15,51 +15,82 @@ module.exports = function(grunt) {
   grunt.util = grunt.util || grunt.utils;
   
   // shortcuts
+  var File = grunt.file;
   var util = grunt.util;
   var exec = require('child_process').exec;
   var log = grunt.log;
 
   var idPattern = /define\s*\((['"])([^\s'"]*)\1/g;
+  var cache = {};
 
   // ==========================================================================
   // PRIVATE HELPER FUNCTIONS
   // ==========================================================================
 
-  function normalizeUri(uri) {
-    return uri.replace(/\\/g, '/').replace(/(https?:)\//, function(full, prefix) {
-      return prefix + '//';
-    });
+  function md5(filecontent) {
+    return crypto.createHash('md5').update(filecontent).digest("hex");
   }
 
-  function md5File(filepath, config) {
-    var tmp;
+  function normalizePath(path) {
+    return Path.normalize(path).replace(/\\/g, '/');
+  }
 
-    var source = grunt.file.read(filepath);
-    var extname = Path.extname(filepath);
-    var filename = Path.basename(filepath, extname) + '_' + md5(source) + extname; 
+  function genereateMd5Filename(path) {
+    if (cache[path]) {
+      return cache[path];
+    }
 
-    tmp = filepath.split(/[\/\\]/);
+    var filename_dst;
+    var filecontent = File.read(path);
+    var extname = Path.extname(path);
+    var basename = Path.basename(path, extname);
+
+    filename_dst = basename + '_' + md5(filecontent) + extname;
+    cache[path] = filename_dst;
+
+    return filename_dst;
+  }
+
+  function getDstLocalPath(path, config) {
+    var dist = config.dist;
+    return Path.join(dist, path);
+  }
+
+  function getRelativePath(path_src, path_dst, filename) {
+    path_dst = Path.resolve(path_dst);
+    path_src = Path.resolve(path_src);
+    var relative_path = Path.relative(path_src, path_dst);
+
+    var tmp = relative_path.split(/[\/\\]/);
     tmp.pop();
     tmp.push(filename);
-    var dstFilepath = tmp.join('/');
 
-    // prefix
-    var base_uri = config.base_uri || grunt.config('pkg.base_uri');
-    var prefix = base_uri || '/' + dist;
+    path_dst = tmp.join('/');
 
-    var dstRelativeFilepath = dstFilepath.substr(grunt.config('pkg.dist').length);
-    var result = normalizeUri(Path.join(prefix + dstRelativeFilepath));
+    return path_dst;
+  }
 
-    grunt.file.copy(filepath, dstFilepath);
+  function getUrl(path, base_uri) {
+    base_uri = base_uri || grunt.config('pkg.base_uri');
+    if (base_uri.slice(-1) != '/') base_uri += '/';
+    return base_uri + normalizePath(path);
+  }
 
-    return result;
+  function processFile(path, config) {
+    var filename_dst = genereateMd5Filename(path);
+    var relative_path = getRelativePath(config.dist, path, filename_dst);
+    var local_path = getDstLocalPath(relative_path, config);
+
+    grunt.file.copy(path, local_path);
+
+    return getUrl(relative_path, config.base_uri);
   }
 
   function generateResourceMap(config) {
     var dist = config.dist;
     var resourceMap = [];
 
-    fs.readdirSync(dist).forEach(function(filename, i) {
+    fs.readdirSync(dist).forEach(function(filename) {
 
       var filepath = Path.join(dist, filename);
 
@@ -72,16 +103,18 @@ module.exports = function(grunt) {
       while(result = idPattern.exec(source)) {
         id = result[2];
         if (id[0] == '#') id = id.slice(1);
-        resourceMap.push([id, md5File(filepath, config)]);
-      }
-
-      if (util.kindOf(config.resourceMap) === 'object') {
-        for (var i in config.resourceMap) {
-          resourceMap.push([i, md5File(config.resourceMap[i], config)]);
-        }
+        resourceMap.push([id, processFile(filepath, config)]);
       }
 
     });
+
+    if (util.kindOf(config.resource_map) === 'object') {
+      var i, filepath;
+      for (i in config.resource_map) {
+        filepath = Path.join(dist, config.resource_map[i]);
+        resourceMap.push([i, processFile(filepath, config)]);
+      }
+    }
 
     var defaultResourceMapFilename = 'js-resource-map.json';
     var resourceMapPath = config.resource_map_file &&
@@ -91,10 +124,6 @@ module.exports = function(grunt) {
     grunt.file.write(resourceMapPath, JSON.stringify(resourceMap));
 
     log.ok('File ' + resourceMapPath + ' created.');
-  }
-
-  function md5(filecontent) {
-    return crypto.createHash('md5').update(filecontent).digest("hex");
   }
 
   // ==========================================================================
@@ -112,7 +141,8 @@ module.exports = function(grunt) {
       dist: true
     };
 
-    for (var i in options) {
+    var i;
+    for (i in options) {
       if (pathOptions[i]) {
         options[i] = grunt.template.process(options[i]);
       }

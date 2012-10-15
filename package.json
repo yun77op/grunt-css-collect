@@ -1,7 +1,7 @@
 {
   "name": "grunt-ne",
   "description": "Grunt plugins including css-version, spm and html-substitute",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": {
     "name": "Yunhu Jiang (@yun77op)",
     "email": "yun77op@gmail.com"
