@@ -113,7 +113,8 @@ module.exports = function(grunt) {
       var i, filepath;
       for (i in config.resource_map) {
         filepath = Path.join(dist, config.resource_map[i]);
-        resourceMap.push([i, processFile(filepath, config)]);
+        var hashed_file = file_hash(filepath);
+        spmResourceMap.push([i + '.js', processFile(filepath, hashed_file, config)]);
       }
     }
 
@@ -122,7 +123,9 @@ module.exports = function(grunt) {
         grunt.template.process(config.resource_map_file) ||
         Path.join(dist, defaultResourceMapFilename);
 
-    grunt.file.write(resourceMapPath, JSON.stringify(resourceMap));
+    File.write(resourceMapPath, JSON.stringify(spmResourceMap));
+    var global_dist = grunt.config('pkg.dist');
+    File.write(Path.join(global_dist, 'js-resource-map.json'), JSON.stringify(resourceMap));
 
     log.ok('File ' + resourceMapPath + ' created.');
   }
