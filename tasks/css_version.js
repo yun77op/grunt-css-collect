@@ -36,7 +36,7 @@ module.exports = function(grunt) {
     return Path.normalize(path).replace(/\\/g, '/');
   }
 
-  function genereateMd5Filename(path) {
+  function file_hash(path) {
     if (cache[path]) {
       return cache[path];
     }
@@ -46,7 +46,7 @@ module.exports = function(grunt) {
     var extname = Path.extname(path);
     var basename = Path.basename(path, extname);
 
-    filename_dst = basename + '_' + md5(filecontent) + extname;
+    filename_dst = basename + '-' + md5(filecontent) + extname;
     cache[path] = filename_dst;
 
     return filename_dst;
@@ -91,13 +91,13 @@ module.exports = function(grunt) {
 
       if (httpPattern.test(img_path)) continue;
 
-      if (img_path[0] == '.') {
-        img_path = Path.resolve(Path.dirname(filepath), img_path);
-      } else if (img_path[0] == '/') {
+      if (img_path[0] == '/') {
         img_path = Path.resolve(img_path.slice(1));
+      } else {
+        img_path = Path.resolve(Path.dirname(filepath), img_path);
       }
 
-      var img_filename_dst = genereateMd5Filename(img_path);
+      var img_filename_dst = file_hash(img_path);
       var relative_path = getRelativePath(config.img_src, img_path, img_filename_dst);
       var local_path = getDstLocalPath(relative_path, config);
       var url = getUrl(relative_path, config.base_uri);
@@ -132,11 +132,11 @@ module.exports = function(grunt) {
     files.forEach(function(file) {
       var map = grunt.helper('css_version', file, config);
       _.extend(resourceMap, map);
-    }); 
+    });
 
     var resourceMapFile = grunt.template.process(config.resource_map_file);
     File.write(resourceMapFile, JSON.stringify(resourceMap));
-  
+ 
     grunt.log.ok('File ' + resourceMapFile + ' created.');
   });
 
@@ -150,15 +150,14 @@ module.exports = function(grunt) {
       return prelude + replaceList[idx++];
     });
 
-    var filename_dst = genereateMd5Filename(filepath);
+    var filename_dst = file_hash(filepath);
     var path_dst = Path.join(config.css_dst, filename_dst);
     var local_path = getDstLocalPath(path_dst, config);
-    var url = getUrl(path_dst, config.base_uri);
     var min = cleanCSS.process(source);
 
     File.write(local_path, min);
 
-    resourceMap['/' + normalizePath(filepath)] = url;
+    resourceMap[normalizePath(filepath)] = normalizePath(path_dst);
 
     return resourceMap;
   });

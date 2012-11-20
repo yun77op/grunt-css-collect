@@ -35,7 +35,7 @@ module.exports = function(grunt) {
     return Path.normalize(path).replace(/\\/g, '/');
   }
 
-  function genereateMd5Filename(path) {
+  function file_hash(path) {
     if (cache[path]) {
       return cache[path];
     }
@@ -45,21 +45,14 @@ module.exports = function(grunt) {
     var extname = Path.extname(path);
     var basename = Path.basename(path, extname);
 
-    filename_dst = basename + '_' + md5(filecontent) + extname;
+    filename_dst = basename + '-' + md5(filecontent) + extname;
     cache[path] = filename_dst;
 
     return filename_dst;
   }
 
-  function getDstLocalPath(path, config) {
-    var dist = config.dist;
-    return Path.join(dist, path);
-  }
-
   function getRelativePath(path_src, path_dst, filename) {
-    path_dst = Path.resolve(path_dst);
-    path_src = Path.resolve(path_src);
-    var relative_path = Path.relative(path_src, path_dst);
+    var relative_path = path_relative(path_src, path_dst);
 
     var tmp = relative_path.split(/[\/\\]/);
     tmp.pop();
@@ -70,40 +63,48 @@ module.exports = function(grunt) {
     return path_dst;
   }
 
-  function getUrl(path, base_uri) {
-    base_uri = base_uri || grunt.config('pkg.base_uri');
-    if (base_uri.slice(-1) != '/') base_uri += '/';
-    return base_uri + normalizePath(path);
+  function path_relative(path_from, path_to) {
+    path_from = Path.resolve(path_from);
+    path_to = Path.resolve(path_to);
+    return Path.relative(path_from, path_to);
   }
 
-  function processFile(path, config) {
-    var filename_dst = genereateMd5Filename(path);
-    var relative_path = getRelativePath(config.dist, path, filename_dst);
-    var local_path = getDstLocalPath(relative_path, config);
+  function path_relative_to_dist(path) {
+    return normalizePath(path_relative(grunt.config('pkg.dist'), path));
+  }
 
-    grunt.file.copy(path, local_path);
+  function processFile(filepath, hashed_file, config) {
+    var relative_path = getRelativePath(config.dist, filepath, hashed_file);
+    var local_path = Path.join(config.dist, relative_path);
 
-    return getUrl(relative_path, config.base_uri);
+    File.copy(filepath, local_path);
+
+    return relative_path;
   }
 
   function generateResourceMap(config) {
     var dist = config.dist;
-    var resourceMap = [];
+    var spmResourceMap = [];
+    var resourceMap = {};
 
     fs.readdirSync(dist).forEach(function(filename) {
 
-      var filepath = Path.join(dist, filename);
+      var filepath = normalizePath(Path.join(dist, filename));
 
       if (fs.statSync(filepath).isDirectory(filepath) ||
           filename.match(/\-debug/)) return;
 
-      var source = grunt.file.read(filepath);
+      var source = File.read(filepath);
       var result, id;
+      var hashed_file = file_hash(filepath);
+
+      var hashed_file_full = Path.join(config.dist, hashed_file);
+      resourceMap[path_relative_to_dist(filepath)] = path_relative_to_dist(hashed_file_full);
 
       while(result = idPattern.exec(source)) {
         id = result[2];
         if (id[0] == '#') id = id.slice(1);
-        resourceMap.push([id, processFile(filepath, config)]);
+        spmResourceMap.push([id + '.js', processFile(filepath, hashed_file, config)]);
       }
 
     });
