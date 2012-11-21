@@ -134,29 +134,36 @@ module.exports = function(grunt) {
   // TASKS
   // ==========================================================================
 
-  grunt.registerTask("spm", "Build spm modules and generate resource map", function() {
-    var config = grunt.config('spm');
+  grunt.registerTask("spm-build", "Build spm modules and generate resource map", function() {
+    var config = grunt.config('spm-build');
     var options = config.options;
     var callback = this.async();
 
-    var spmBuildParams = '';
+    var spmBuildStr = '';
     var pathOptions = {
       src: true,
       dist: true
     };
 
     var i;
+
     for (i in options) {
+      var key = i;
+
       if (pathOptions[i]) {
         options[i] = grunt.template.process(options[i]);
       }
 
-      spmBuildParams += ' --' + i + '=' + options[i];
+      // spm bug, can't recognise dist commmand line parameter
+      if (i == 'dist') key = 'to';
+
+      spmBuildStr += ' --' + key + '=' + options[i];
     }
 
     config.dist = Path.join(config.root, options.dist);
+    File.mkdir(config.dist);
 
-    exec('spm build' + spmBuildParams,  {
+    exec('spm build' + spmBuildStr,  {
       cwd: Path.resolve(config.root)
     }, function(err, stdout, stderr) {
       log.writeln('');
