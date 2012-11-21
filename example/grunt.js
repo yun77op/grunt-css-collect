@@ -26,7 +26,7 @@ module.exports = function(grunt) {
       }
     },
 
-    spm: {
+    "spm-build": {
       root: "./js",
       resource_map_file: "<%= pkg.dist %>/js-resource-map.json",
       resource_map: {
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
       }
     },
 
-    html_substitute: {
+    "html-replace": {
       main: {
         resource_map: ["<config:css_version.main.resource_map_file>"],
         src: "./html",
@@ -52,5 +52,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadTasks('../tasks');
 
-  grunt.registerTask('default', 'clean css_version spm html_substitute');
+  grunt.registerTask('default', 'clean css_version spm-build');
 };

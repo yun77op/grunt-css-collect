@@ -1,6 +1,6 @@
 {
   "name": "grunt-ne",
-  "description": "Grunt plugins including css-version, spm and html-substitute",
+  "description": "Grunt plugins including css-collect, spm-build and html-replace",
   "version": "0.0.3",
   "author": {
     "name": "Yunhu Jiang",

@@ -1,5 +1,5 @@
 /*
- * grunt-html-substitue
+ * grunt-html-replace
  *
  * Copyright (c) 2012 yun77op
  * Licensed under the MIT license.
@@ -17,7 +17,7 @@ module.exports = function(grunt) {
     var File = grunt.file;
 
 
-    var relStylesheetPattern = /rel\s*=\s*(['"]?)stylesheet\1/;
+    var stylesheetPattern = /rel\s*=\s*(['"]?)stylesheet\1/;
     var stylesheetHrefPattern = /href\s*=\s*(['"]?)([^>\s'"]+)\1/;
 
     var processers = {
@@ -31,7 +31,7 @@ module.exports = function(grunt) {
                 var href_dst = resourceMap[href_src];
 
                 if (!href_dst) {
-                    grunt.fail.warn('Failed to substitue ' + href_src + '.');
+                    grunt.fail.warn('Failed to replace ' + href_src + '.');
                 }
 
                 $elm.attr('href', href_dst);
@@ -47,7 +47,7 @@ module.exports = function(grunt) {
                 line = line.trim();
 
                 if (line.indexOf('<link') != 0 ||
-                    !line.match(relStylesheetPattern)) return false;
+                    !line.match(stylesheetPattern)) return false;
 
                 return true;
             }
@@ -59,7 +59,7 @@ module.exports = function(grunt) {
                     var value = resourceMap[path];
 
                     if (!value) {
-                        grunt.fail.warn('Failed to substitue ' + path + '.');
+                        grunt.fail.warn('Failed to replace ' + path + '.');
                     }
 
                     return 'href="' + value + '"';
@@ -74,7 +74,7 @@ module.exports = function(grunt) {
     // TASKS
     // ==========================================================================
 
-    grunt.registerMultiTask("html_substitute", "Substitue assets link in html", function() {
+    grunt.registerMultiTask("html-replace", "Replace assets link in html", function() {
         var config = _.defaults({}, this.data);
 
         var resourceMap = {};
@@ -104,13 +104,13 @@ module.exports = function(grunt) {
         }).flatten().value();
 
         files.forEach(function(file) {
-            grunt.helper('html_substitute', file, config);
+            grunt.helper('html-replace', file, config);
         });
 
         grunt.log.ok();
     });
 
-    grunt.registerHelper('html_substitute', function(filepath, config) {
+    grunt.registerHelper('html-replace', function(filepath, config) {
         var source = String(File.read(filepath, 'utf-8'));
         var processer = processers[config.process_type || 'line'];
         var html = processer(source, config.resourceMap);
