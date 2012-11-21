@@ -16,7 +16,7 @@ module.exports = function(grunt) {
       dist: ["<config:pkg.dist>"]
     },
 
-    css_version: {
+    "css-collect": {
       main: {
         css_src: "./css",
         css_dst: "css",
@@ -40,7 +40,7 @@ module.exports = function(grunt) {
 
     "html-replace": {
       main: {
-        resource_map: ["<config:css_version.main.resource_map_file>"],
+        resource_map: ["<config:css-collect.main.resource_map_file>"],
         src: "./html",
         files: "*.html"
       }
@@ -52,5 +52,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadTasks('../tasks');
 
-  grunt.registerTask('default', 'clean css_version spm-build');
+  grunt.registerTask('default', 'clean css-collect spm-build');
 };

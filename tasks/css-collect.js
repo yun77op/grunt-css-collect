@@ -113,7 +113,7 @@ module.exports = function(grunt) {
   // TASKS
   // ==========================================================================
 
-  grunt.registerMultiTask("css_version", "Version css and img files using Md5", function() {
+  grunt.registerMultiTask("css-collect", "Version css and img files using Md5", function() {
     var config = _.defaults({}, this.data);
     var resourceMap = {};
     var files = config.files;
@@ -130,7 +130,7 @@ module.exports = function(grunt) {
     }).flatten().value();
 
     files.forEach(function(file) {
-      var map = grunt.helper('css_version', file, config);
+      var map = grunt.helper('css-collect', file, config);
       _.extend(resourceMap, map);
     });
 
@@ -140,7 +140,7 @@ module.exports = function(grunt) {
     grunt.log.ok('File ' + resourceMapFile + ' created.');
   });
 
-  grunt.registerHelper('css_version', function(filepath, config) {
+  grunt.registerHelper('css-collect', function(filepath, config) {
     var idx = 0;
     var resourceMap = {};
     var source = File.read(filepath);
