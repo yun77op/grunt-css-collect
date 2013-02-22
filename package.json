@@ -1,7 +1,7 @@
 {
   "name": "grunt-ne",
   "description": "Grunt plugins including css-collect, spm-build and html-replace",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Yunhu Jiang",
     "email": "yun77op@gmail.com",
@@ -18,9 +18,9 @@
     }
   ],
   "dependencies": {
-    "grunt": "0.3.15",
     "clean-css": "~0.4.1",
-    "cheerio": "0.9.2"
+    "cheerio": "0.9.2",
+    "spm": "~1.6.0"
   },
   "keywords": [
     "gruntplugin"
@@ -29,7 +29,7 @@
     "url": "https://github.com/yun77op/grunt-ne/issues"
   },
   "engines": {
-    "node": ">= 0.6.0"
+    "node": ">= 0.8.0"
   },
-  "main": "grunt.js"
+  "main": "Gruntfile.js"
 }

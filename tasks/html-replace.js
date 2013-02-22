@@ -104,18 +104,18 @@ module.exports = function(grunt) {
         }).flatten().value();
 
         files.forEach(function(file) {
-            grunt.helper('html-replace', file, config);
+          htmlReplace(file, config);
         });
 
         grunt.log.ok();
     });
 
-    grunt.registerHelper('html-replace', function(filepath, config) {
+    function htmlReplace(filepath, config) {
         var source = String(File.read(filepath, 'utf-8'));
         var processer = processers[config.process_type || 'line'];
         var html = processer(source, config.resourceMap);
 
         File.write(filepath, html);
-    });
+    }
 
 };

@@ -17,8 +17,8 @@ module.exports = function(grunt) {
   // shortcuts
   var File = grunt.file;
   var util = grunt.util;
-  var exec = require('child_process').exec;
   var log = grunt.log;
+  var execFile = require('child_process').execFile;
 
   var idPattern = /define\s*\((['"])([^\s'"]*)\1/g;
   var cache = {};
@@ -136,41 +136,14 @@ module.exports = function(grunt) {
 
   grunt.registerTask("spm-build", "Build spm modules and generate resource map", function() {
     var config = grunt.config('spm-build');
-    var options = config.options;
     var callback = this.async();
 
-    var spmBuildStr = '';
-    var pathOptions = {
-      src: true,
-      dist: true
-    };
+    var build = require('spm').getAction('build');
+    var options = {};
+    options.base = Path.resolve(config.base);
+    config.dist = grunt.template.process(config.dist)
 
-    var i;
-
-    for (i in options) {
-      var key = i;
-
-      if (pathOptions[i]) {
-        options[i] = grunt.template.process(options[i]);
-      }
-
-      // spm bug, can't recognise dist commmand line parameter
-      if (i == 'dist') key = 'to';
-
-      spmBuildStr += ' --' + key + '=' + options[i];
-    }
-
-    config.dist = Path.join(config.root, options.dist);
-    File.mkdir(config.dist);
-
-    exec('spm build' + spmBuildStr,  {
-      cwd: Path.resolve(config.root)
-    }, function(err, stdout, stderr) {
-      log.writeln('');
-      log.writeln(stdout);
-      if (stderr) log.error(stderr);
-      if (err) grunt.fail.fatal(err);
-
+    build.run(options, function() {
       generateResourceMap(config);
       callback();
     });

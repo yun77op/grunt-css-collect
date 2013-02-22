@@ -2,11 +2,7 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
-    pkg: {
-      name: "jy",
-      dist: "dist",
-      base_uri: "http://static.mail.com/jy/dist"
-    },
+    pkg: grunt.file.readJSON('package.json'),
 
     test: {
       files: ["test/**/*.js"]
@@ -27,14 +23,11 @@ module.exports = function(grunt) {
     },
 
     "spm-build": {
-      root: "./js",
+      base: "./js",
+      dist: "<%= pkg.dist %>/js",
       resource_map_file: "<%= pkg.dist %>/js-resource-map.json",
       resource_map: {
         "bootstrap-dropdown": "ui.js"
-      },
-      options: {
-        src: ".",
-        dist: "../<%= pkg.dist %>/js"
       }
     },
 
@@ -48,9 +41,8 @@ module.exports = function(grunt) {
 
   });
 
-  //grunt.loadNpmTasks('grunt-htmlcompressor');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadTasks('../tasks');
 
-  grunt.registerTask('default', 'clean css-collect spm-build');
+  grunt.registerTask('default', ['clean', 'css-collect', 'spm-build']);
 };

@@ -17,6 +17,8 @@
  * limitations under the License.
  * ============================================================ */
 
+define(function(require) {
+
 
 !function ($) {
 
@@ -98,3 +100,5 @@
   })
 
 }(window.jQuery);
+})     ;
+

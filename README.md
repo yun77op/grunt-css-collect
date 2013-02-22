@@ -18,11 +18,7 @@
 
     grunt.initConfig({
       ...
-      pkg: {
-        name: "jy",
-        dist: "dist",
-        base_uri: "http://static.mail.com/jy"
-      },
+      pkg: grunt.file.readJSON('package.json'),
 
       "css-collect": {
         main: {
@@ -35,14 +31,11 @@
       },
 
       "spm-build": {
-        root: "./js",
+        base: "./js",
+        dist: "<%= pkg.dist %>/js",
         resource_map_file: "<%= pkg.dist %>/js-resource-map.json",
         resource_map: {
           "bootstrap-dropdown": "ui.js"
-        },
-        options: {
-          src: ".",
-          dist: "../<%= pkg.dist %>/js"
         }
       },
 
@@ -52,7 +45,7 @@
           src: "./html",
           files: "*.html"
         }
-      },
+      }
       ...
     });
 

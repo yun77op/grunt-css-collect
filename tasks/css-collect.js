@@ -4,13 +4,13 @@
  * Copyright (c) 2012 yun77op
  * Licensed under the MIT license.
  */
+"use strict";
 
 var Path = require('path');
 var crypto = require('crypto');
 var cleanCSS = require('clean-css');
 
 module.exports = function(grunt) {
-  "use strict";
 
   grunt.util = grunt.util || grunt.utils;
 
@@ -126,11 +126,11 @@ module.exports = function(grunt) {
 
     files = _(files).chain().map(function(file) {
       file = Path.join(config.css_src, file);
-      return File.expandFiles(file);
+      return File.expand(file);
     }).flatten().value();
 
     files.forEach(function(file) {
-      var map = grunt.helper('css-collect', file, config);
+      var map = cssCollect(file, config);
       _.extend(resourceMap, map);
     });
 
@@ -140,7 +140,7 @@ module.exports = function(grunt) {
     grunt.log.ok('File ' + resourceMapFile + ' created.');
   });
 
-  grunt.registerHelper('css-collect', function(filepath, config) {
+  function cssCollect(filepath, config) {
     var idx = 0;
     var resourceMap = {};
     var source = File.read(filepath);
@@ -160,5 +160,5 @@ module.exports = function(grunt) {
     resourceMap[normalizePath(filepath)] = normalizePath(path_dst);
 
     return resourceMap;
-  });
+  }
 };
