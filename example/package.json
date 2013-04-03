@@ -4,7 +4,5 @@
   "devDependencies": {
     "grunt": "~0.4.0",
     "grunt-contrib-clean": "*"
-  },
-  "dist": "dist",
-  "base_uri": "http://static.mail.com/jy/dist"
+  }
 }

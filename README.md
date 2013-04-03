@@ -1,70 +1,42 @@
-# grunt-ne
+# grunt-css-collect
 
-三个grunt插件的集合，打包前端资源
+用于css及css中引用图片的版本控制的grunt插件，可选替换html中引用的css为处理后的css路径
 
 ## 开始使用
 
 ### 安装
 
-    npm install grunt-ne
+    npm install grunt-css-collect
 
 ### 配置
 
-添加下面一行到你的`grunt.js`：
+添加下面一行到你的`Gruntfile.js`：
 
-    grunt.loadNpmTasks('grunt-ne');
+    grunt.loadNpmTasks('grunt-css-collect');
 
 然后为插件增加像下面这样的配置：
 
-    grunt.initConfig({
-      ...
-      pkg: grunt.file.readJSON('package.json'),
-
-      "css-collect": {
-        main: {
-          css_src: "./css",
-          css_dst: "css",
-          img_dst: "img",
-          resource_map_file: "<%= pkg.dist %>/css-resource-map.json",
-          files: "*.css"
-        }
-      },
-
-      "spm-build": {
-        base: "./js",
-        dist: "<%= pkg.dist %>/js",
-        resource_map_file: "<%= pkg.dist %>/js-resource-map.json",
-        resource_map: {
-          "bootstrap-dropdown": "ui.js"
-        }
-      },
-
-      "html-replace": {
-        main: {
-          resource_map: ["<config:css-collect.main.resource_map_file>"],
-          src: "./html",
-          files: "*.html"
-        }
+    "css-collect": {
+      main: {
+        options: {
+          css_dst: "dist/css",
+          resource_map_file: "dist/css-resource-map.json",
+          base_uri: "http://example.com/"
+        },
+        files: "css/*.css"
       }
-      ...
-    });
+    }
 
-## 命令
+## 选项
 
-### css-collect
+### css_dst
 
-读取`css_src`中的css文件，分析css文件中的图片引用，把这些图片保持原有目录地移到`img_dst`，并把图片的md5值作为该图片文件名一部分，css文件中对该图片的引用路径也更改为图片处理后的路径；移动css文件到`css_dst`，对css文件压缩并做把css 的md5值作为该css文件名一部分，最后产出`resource_map_file`。
+处理后的css文件存放目录
 
-### spm-build
+### resource_map_file
 
-对使用 [seajs](http://seajs.org) 组织的模块使用 [spm](https://github.com/seajs/spm) 打包，最后产出`resource_map_file`，上线后比如在freemarker模板里如下使用, 就能无缝地去加载打包后的资源文件。
+路径映射文件
 
-    seajs.config({
-      ...
-      map: <#include {path to resource map file}>
-      ...
-    });
+### base_uri
 
-### html-replace 
-
-根据`resource_map`，对模版文件的资源引用的路径替换，暂时只能识别css引用。
+css文件引用的图片基本地址

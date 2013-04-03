@@ -2,11 +2,6 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
-    pkg: {
-      name: "jy",
-      dist: "dist"
-    },
-
     test: {
       files: ["test/**/*.js"]
     },
