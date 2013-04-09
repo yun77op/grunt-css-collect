@@ -2,19 +2,19 @@
   "name": "grunt-css-collect",
   "description": "Grunt plugin css-collect",
   "version": "1.0.0",
-  "homepage": "https://github/yun77op/grunt-ne",
+  "homepage": "https://github/yun77op/grunt-css-collect",
   "author": {
     "name": "Yunhu Jiang",
     "email": "yun77op@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/yun77op/grunt-ne.git"
+    "url": "git://github.com/yun77op/grunt-css-collect.git"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/yun77op/grunt-ne/blob/master/LICENSE-MIT"
+      "url": "https://github.com/yun77op/grunt-css-collect/blob/master/LICENSE-MIT"
     }
   ],
   "dependencies": {
@@ -29,7 +29,7 @@
     "css"
   ],
   "bugs": {
-    "url": "https://github.com/yun77op/grunt-ne/issues"
+    "url": "https://github.com/yun77op/grunt-css-collect/issues"
   },
   "engines": {
     "node": ">= 0.8.0"

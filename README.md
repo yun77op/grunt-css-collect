@@ -1,6 +1,6 @@
 # grunt-css-collect
 
-用于css及css中引用图片的版本控制的grunt插件
+> 使用MD5版本控制CSS及CSS中引用的图片文件
 
 ## 开始使用
 
@@ -34,15 +34,15 @@
 
 ### dest_dir
 
-处理后的cs录s文件存放目
+处理后的css及图片文件存放目录
 
 ### resource_map_file
 
-路径映射文件
+资源映射文件路径
 
 ### base_url
 
-css文件引用的图片基本地址
+CSS文件引用的图片的基准地址
 
 ### web_root
 
