@@ -103,6 +103,7 @@ var cleanCSS = require('clean-css');
   grunt.registerMultiTask('css-collect', 'Version css and image files using MD5', function() {
     var resourceMap = {};
     var options = this.options({
+      base_url: '/',
       web_root: '.'
     });
 

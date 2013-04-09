@@ -42,8 +42,14 @@
 
 ### base_url
 
+type: `String`
+Default: '/'
+
 CSS文件引用的图片的基准地址
 
 ### web_root
+
+type: `String`
+Default: '.'
 
 Web服务器根目录
