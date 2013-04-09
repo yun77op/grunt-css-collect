@@ -1,8 +1,8 @@
 {
-  "name": "grunt-ne-example",
+  "name": "grunt-css-collect-example",
   "version": "0.0.3",
   "devDependencies": {
     "grunt": "~0.4.0",
-    "grunt-contrib-clean": "*"
+    "grunt-contrib-clean": "~0.4.0"
   }
 }

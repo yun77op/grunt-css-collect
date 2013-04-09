@@ -1,27 +1,26 @@
 module.exports = function(grunt) {
 
+  'use strict';
+
   // Project configuration.
   grunt.initConfig({
-
-    test: {
-      files: ["test/**/*.js"]
-    },
-
     clean: {
-      dist: ["<config:pkg.dist>"]
+      dist: ["dist"]
     },
 
     "css-collect": {
       main: {
         options: {
-          css_dst: "dist/css",
+          dest_dir: "dist",
           resource_map_file: "dist/css-resource-map.json",
-          base_uri: "http://example.com/"
+          base_url: "http://example.com/dist/",
+          web_root: "."
         },
-        files: "css/*.css"
+        files: {
+          src: ["css/*.css"]
+        }
       }
     }
-
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');

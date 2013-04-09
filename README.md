@@ -1,6 +1,6 @@
 # grunt-css-collect
 
-用于css及css中引用图片的版本控制的grunt插件，可选替换html中引用的css为处理后的css路径
+用于css及css中引用图片的版本控制的grunt插件
 
 ## 开始使用
 
@@ -19,24 +19,31 @@
     "css-collect": {
       main: {
         options: {
-          css_dst: "dist/css",
+          dest_dir: "dist",
           resource_map_file: "dist/css-resource-map.json",
-          base_uri: "http://example.com/"
+          base_url: "http://example.com/dist/",
+          web_root: "."
         },
-        files: "css/*.css"
+        files: {
+          src: ["css/*.css"]
+        }
       }
     }
 
 ## 选项
 
-### css_dst
+### dest_dir
 
-处理后的css文件存放目录
+处理后的cs录s文件存放目
 
 ### resource_map_file
 
 路径映射文件
 
-### base_uri
+### base_url
 
 css文件引用的图片基本地址
+
+### web_root
+
+Web服务器根目录
