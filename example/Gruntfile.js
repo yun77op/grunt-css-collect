@@ -13,7 +13,7 @@ module.exports = function(grunt) {
         options: {
           dest_dir: "dist",
           resource_map_file: "dist/css-resource-map.json",
-          base_url: "http://example.com/dist/",
+          base_url: "http://example.com/dist",
           web_root: "."
         },
         files: {

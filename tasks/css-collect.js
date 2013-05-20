@@ -12,17 +12,17 @@ var path = require('path');
 var crypto = require('crypto');
 var cleanCSS = require('clean-css');
 
-  module.exports = function(grunt) {
+module.exports = function(grunt) {
 
-    // Shorthands
-    var file = grunt.file;
+  // Shorthands
+  var file = grunt.file;
 
-    var cssBackgroundPattern = /background.*?url\((['"]?)([^'"\)]+)\1/g;
-    var httpPattern = /^https?:\/\//;
-    var cache = {};
+  var cssBackgroundPattern = /background.*?url\((['"]?)([^'"\)]+)\1/g;
+  var httpPattern = /^https?:\/\//;
+  var cache = {};
 
 
-    // ==========================================================================
+  // ==========================================================================
   // PRIVATE HELPER FUNCTIONS
   // ==========================================================================
 
@@ -46,18 +46,6 @@ var cleanCSS = require('clean-css');
     cache[filePath] = destFileName;
 
     return destFileName;
-  }
-
-  function assembleURL(filePath, baseURL) {
-    var slash = '/';
-    filePath = normalizePath(filePath);
-    if (baseURL.slice(-1) === slash) {
-      baseURL = baseURL.slice(0, -1);
-    }
-    if (filePath[0] === slash) {
-      filePath = filePath.slice(1);
-    }
-    return baseURL + slash + filePath;
   }
 
   function getDestFilePathRelativeToRoot(rootPath, filePath, destFileName) {
@@ -87,7 +75,7 @@ var cleanCSS = require('clean-css');
       var destImgFileName = hashFile(imgFilePath);
       var destImgFilePathRelativeToRoot = getDestFilePathRelativeToRoot(rootPath, imgFilePath, destImgFileName);
       var destImgFilePath = path.join(options.dest_dir, destImgFilePathRelativeToRoot);
-      var url = assembleURL(destImgFilePathRelativeToRoot, options.base_url);
+      var url = options.base_url + '/' + destImgFilePathRelativeToRoot;
 
       file.copy(imgFilePath, destImgFilePath);
 
@@ -103,7 +91,7 @@ var cleanCSS = require('clean-css');
   grunt.registerMultiTask('css-collect', 'Version css and image files using MD5', function() {
     var resourceMap = {};
     var options = this.options({
-      base_url: '/',
+      base_url: '',
       web_root: '.'
     });
 
@@ -132,7 +120,7 @@ var cleanCSS = require('clean-css');
           return '/' + normalizePath(filePathRelativeToRoot);
         };
 
-        resourceMap[convertToWebRootAbsolutePath(filePath)] = '/' + filePathRelativeToRoot;
+        resourceMap[convertToWebRootAbsolutePath(filePath)] = options.base_url + '/' + filePathRelativeToRoot;
       });
     });
 
