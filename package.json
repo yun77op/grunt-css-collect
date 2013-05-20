@@ -1,7 +1,7 @@
 {
   "name": "grunt-css-collect",
   "description": "Grunt plugin css-collect",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github/yun77op/grunt-css-collect",
   "author": {
     "name": "Yunhu Jiang",
